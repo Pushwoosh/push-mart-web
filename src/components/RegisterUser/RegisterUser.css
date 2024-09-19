@@ -1,0 +1,15 @@
+.register-user {
+  text-align: center;
+}
+
+.register-user-container {
+  display: flex;
+  justify-content: center;
+}
+
+.register-user-input {
+  max-width: 300px;
+  margin-right: 10px;
+}
+
+

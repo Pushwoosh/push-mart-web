@@ -1,0 +1,8 @@
+.app_code_prompt {
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.app_code_prompt .btn {
+  border: 1px solid transparent !important;
+}

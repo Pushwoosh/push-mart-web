@@ -1,0 +1,41 @@
+{
+  "name": "pushon",
+  "version": "1.0.9",
+  "private": true,
+  "devDependencies": {
+    "http-server": "0.10.0",
+    "react-scripts": "^3.1.1"
+  },
+  "dependencies": {
+    "history": "^4.9.0",
+    "lodash": "^4.17.15",
+    "prop-types": "^15.7.2",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-modal": "^3.10.1",
+    "react-redux": "^7.1.1",
+    "react-router-dom": "^5.0.1",
+    "redux": "^4.0.4",
+    "web-push-notifications": "^3.37.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build && node ./scripts/copyServiceWorker.js",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "deploy": "npm run build && node ./scripts/copyServiceWorker.js",
+    "server": "node ./node_modules/http-server/bin/http-server ./build -a 0.0.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

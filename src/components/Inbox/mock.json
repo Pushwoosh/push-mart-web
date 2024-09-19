@@ -1,0 +1,37 @@
+[
+  {
+    "code": "mock_message_0",
+    "title": "Order Delivered",
+    "message": "Your order №16231 has arrived to the pick-up point!",
+    "imageUrl": "https://d1oprtn4hk65x9.cloudfront.net/1f4e6.png",
+    "isRead": true
+  },
+  {
+    "code": "mock_message_1",
+    "title": "November Sale",
+    "message": "An awesome discount on jeans in all of our shops. Come take a look and get what you like!",
+    "imageUrl": "https://d1oprtn4hk65x9.cloudfront.net/1f6d2.png",
+    "isRead": false
+  },
+  {
+    "code": "mock_message_2",
+    "title": "New Collection",
+    "message": "Check out the full list of new jeans. Get any item and get a free delivery!",
+    "imageUrl": "https://d1oprtn4hk65x9.cloudfront.net/1f456.png",
+    "isRead": false
+  },
+  {
+    "code": "mock_message_4",
+    "title": "October Sale",
+    "message": "An awesome discount on jeans in all of our shops. Come take a look and get what you like!",
+    "imageUrl": "https://d1oprtn4hk65x9.cloudfront.net/1f6d2.png",
+    "isRead": false
+  },
+  {
+    "code": "mock_message_5",
+    "title": "2017 Collection Clearance",
+    "message": "We know you know a good deal when you see one, and our Clearance corner is loaded with fantastic items at rock bottom pricing.",
+    "imageUrl": "https://d1oprtn4hk65x9.cloudfront.net/1f6d2.png",
+    "isRead": false
+  }
+]
