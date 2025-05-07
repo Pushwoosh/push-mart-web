@@ -3,8 +3,22 @@
   "version": "1.0.9",
   "private": true,
   "devDependencies": {
+    "@babel/core": "^7.27.1",
+    "@babel/preset-env": "^7.27.1",
+    "@babel/preset-react": "^7.27.1",
+    "babel-loader": "^10.0.0",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^13.0.0",
+    "cross-env": "^7.0.3",
+    "css-loader": "^7.1.2",
+    "html-webpack-plugin": "^5.6.3",
     "http-server": "0.10.0",
-    "react-scripts": "^3.1.1"
+    "style-loader": "^4.0.0",
+    "terser-webpack-plugin": "^5.3.14",
+    "webpack": "^5.99.8",
+    "webpack-bundle-analyzer": "^4.10.2",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.1"
   },
   "dependencies": {
     "history": "^4.9.0",
@@ -16,14 +30,12 @@
     "react-redux": "^7.1.1",
     "react-router-dom": "^5.0.1",
     "redux": "^4.0.4",
-    "web-push-notifications": "^3.37.0"
+    "web-push-notifications": "^3.39.7"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build && node ./scripts/copyServiceWorker.js",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "deploy": "npm run build && node ./scripts/copyServiceWorker.js",
+    "build": "cross-env NODE_ENV=production webpack",
+    "analyze": "cross-env NODE_ENV=production ANALYZER_MODE=server webpack",
+    "deploy": "npm run build",
     "server": "node ./node_modules/http-server/bin/http-server ./build -a 0.0.0.0"
   },
   "browserslist": {

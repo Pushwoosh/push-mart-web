@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { differenceBy, last } from 'lodash';
+import differenceBy from 'lodash/differenceBy';
+import last from 'lodash/last';
 import { getPushwoosh } from '..';
 import { changeSubscription, setUserId } from '../actions/app';
 import { updateUnreadMessagesCount, updateInboxMessages, mockInboxMessages } from '../actions/inbox';
@@ -118,8 +119,7 @@ const withCartTracking = (WrappedComponent) => {
                 this.PW.push(['init', {
                     logLevel: 'debug',
                     applicationCode: this.props.app.code,
-                    pushwooshApiUrl: process.env.REACT_APP_API_URL,
-                    safariWebsitePushID: process.env.REACT_APP_PUSH_ID || 'web.com.pushwoosh.pushon',
+                    safariWebsitePushID: 'web.com.pushwoosh.pushon',
                     defaultNotificationTitle: 'PushOn Online Shop',
                     defaultNotificationImage: 'https://go.pushwoosh.com/img/web_sdk_ico.png',
                     autoSubscribe: !!autoSubscribe,

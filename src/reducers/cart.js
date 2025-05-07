@@ -1,4 +1,5 @@
-import { find, uniq } from 'lodash';
+import find from 'lodash/find';
+import uniq from 'lodash/uniq';
 import * as constants from '../constants';
 
 const initialState = [];

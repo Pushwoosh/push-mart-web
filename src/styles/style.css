@@ -260,7 +260,7 @@ nav > .navLink + .navLink {
 
     width: 10px;
     height: 10px;
-    background: transparent url('/images/icon-close.svg') 50% no-repeat;
+    background: transparent url('../images/icon-close.svg') 50% no-repeat;
     cursor: pointer;
 }
 .inbox-item:hover .inbox-item-remove {
@@ -274,7 +274,7 @@ nav > .navLink + .navLink {
 
 .inbox-list--empty .inbox-list-icon {
     height: 120px;
-    background: transparent url('/images/icon-empty-inbox.png') 50% no-repeat;
+    background: transparent url('../images/icon-empty-inbox.png') 50% no-repeat;
     margin-bottom: 30px;
 }
 
