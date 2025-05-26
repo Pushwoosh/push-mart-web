@@ -1,29 +1,28 @@
 import * as constants from '../constants';
 
-
 export function saveApp(payload) {
-    return {
-        type: constants.APP_SAVE,
-        payload,
-    };
+  return {
+    type: constants.APP_SAVE,
+    payload,
+  };
 }
 
 export function clearApp() {
-    return {
-        type: constants.APP_CLEAR,
-    };
+  return {
+    type: constants.APP_CLEAR,
+  };
 }
 
 export function changeSubscription(payload) {
-    return {
-        type: constants.CHANGE_SUBSCRIPTION,
-        payload,
-    };
+  return {
+    type: constants.CHANGE_SUBSCRIPTION,
+    payload,
+  };
 }
 
 export function setUserId(payload) {
-    return {
-        type: constants.SET_USER_ID,
-        payload
-    }
+  return {
+    type: constants.SET_USER_ID,
+    payload,
+  };
 }

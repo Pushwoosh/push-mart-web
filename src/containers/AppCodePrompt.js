@@ -5,82 +5,81 @@ import { withRouter } from 'react-router-dom';
 import { AppCodePrompt } from '../components';
 import { saveApp } from '../actions/app';
 
-
 class AppCodePromptContainer extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            error: '',
-            inputValue: '',
-        };
-        this.onSubmitHandler = this.onSubmit.bind(this);
-        this.changeInputHandler = this.changeInput.bind(this);
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      error: '',
+      inputValue: '',
+    };
+    this.onSubmitHandler = this.onSubmit.bind(this);
+    this.changeInputHandler = this.changeInput.bind(this);
+  }
 
-    UNSAFE_componentWillMount() {
-        this.setState({ inputValue: this.props.applicationCode }, () => {
-            if (this.isValidAppCode()) {
-                this.handleApplication();
-            }
-        });
-    }
-
-    onSubmit(event) {
-        event.preventDefault();
-
-        if (!this.isValidAppCode()) {
-            this.setState({
-                error: 'Application Code is invalid',
-            });
-            return;
-        }
-
+  UNSAFE_componentWillMount() {
+    this.setState({ inputValue: this.props.applicationCode }, () => {
+      if (this.isValidAppCode()) {
         this.handleApplication();
+      }
+    });
+  }
+
+  handleApplication() {
+    const { hash } = window.location;
+
+    this.props.saveApp(this.state.inputValue);
+    this.props.history.push(`/products/${hash}`);
+  }
+
+  onSubmit(event) {
+    event.preventDefault();
+
+    if (!this.isValidAppCode()) {
+      this.setState({
+        error: 'Application Code is invalid',
+      });
+      return;
     }
 
-    handleApplication() {
-        const { hash } = window.location;
+    this.handleApplication();
+  }
 
-        this.props.saveApp(this.state.inputValue);
-        this.props.history.push(`/products/${hash}`);
-    }
+  isValidAppCode() {
+    const regexp = /^\w{5}-\w{5}$/;
+    return regexp.test(this.state.inputValue);
+  }
 
-    isValidAppCode() {
-        const regexp = /^\w{5}-\w{5}$/;
-        return regexp.test(this.state.inputValue);
-    }
+  changeInput(event) {
+    this.setState({
+      inputValue: event.target.value,
+    });
+  }
 
-    changeInput(event) {
-        this.setState({
-            inputValue: event.target.value,
-        });
-    }
-
-    render() {
-        return (
-            <AppCodePrompt
-                error={this.state.error}
-                submitHandler={this.onSubmitHandler}
-                changeInputHandler={this.changeInputHandler}
-            />
-        );
-    }
+  render() {
+    return (
+      <AppCodePrompt
+        error={this.state.error}
+        submitHandler={this.onSubmitHandler}
+        changeInputHandler={this.changeInputHandler}
+      />
+    );
+  }
 }
 
 AppCodePromptContainer.propTypes = {
-    applicationCode: PropTypes.string,
-    saveApp: PropTypes.func.isRequired,
-    history: PropTypes.shape({
-        push: PropTypes.func.isRequired,
-    }).isRequired,
+  applicationCode: PropTypes.string,
+  saveApp: PropTypes.func.isRequired,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 AppCodePromptContainer.defaultProps = {
-    applicationCode: '',
+  applicationCode: '',
 };
 
 const bindActions = {
-    saveApp,
+  saveApp,
 };
 
 export default withRouter(connect(() => ({}), bindActions)(AppCodePromptContainer));

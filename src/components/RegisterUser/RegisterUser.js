@@ -2,9 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './RegisterUser.css';
 
-class RegisterUser extends React.Component {
-
- render() {
+function RegisterUser(props) {
   return (
     <div className="register-user">
       <h5>AND</h5>
@@ -12,21 +10,21 @@ class RegisterUser extends React.Component {
       <div className="register-user-container">
         <input
           type="email"
-          value={this.props.userId}
+          value={props.userId}
           className="form-control register-user-input"
           placeholder="Enter your email or user ID"
-          onChange={(e) => this.props.setUserId(e.target.value)}
+          onChange={(e) => props.setUserId(e.target.value)}
         />
         <button
+          type="button"
           className="btn btn-primary"
-          onClick={this.props.registerUser}
+          onClick={props.registerUser}
         >
           Register UserID
         </button>
       </div>
     </div>
   );
- }
 }
 
 /* eslint-disable react/require-default-props */
@@ -34,7 +32,7 @@ class RegisterUser extends React.Component {
 RegisterUser.propTypes = {
   setUserId: PropTypes.func,
   registerUser: PropTypes.func,
-  userId: PropTypes.string
+  userId: PropTypes.string,
 };
 
 export default RegisterUser;
