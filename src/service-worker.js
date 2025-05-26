@@ -1,1 +1,1 @@
-import 'web-push-notifications/lib/service-worker';
+import 'web-push-notifications/service-worker';

@@ -133,9 +133,6 @@ const withCartTracking = (WrappedComponent) => {
             enable: true,
             bgColor: '#3FE3AB',
           },
-          inApps: {
-            enable: true,
-          },
         }]);
         this.PW.push(['onReady', () => {
           this.props.mockInboxMessages();

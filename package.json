@@ -37,7 +37,7 @@
     "react-redux": "^7.1.1",
     "react-router-dom": "^5.0.1",
     "redux": "^4.0.4",
-    "web-push-notifications": "^3.40.0"
+    "web-push-notifications": "3.44.15"
   },
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack",
