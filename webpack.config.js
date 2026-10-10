@@ -61,6 +61,12 @@ module.exports = {
       template: path.join(__dirname, 'src', 'index.html'),
       chunks: ['main']
     }),
+    // GitHub Pages has no SPA fallback: serve the app for unknown routes too.
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, 'src', 'index.html'),
+      filename: '404.html',
+      chunks: ['main']
+    }),
     new BundleAnalyzerPlugin({
       analyzerMode: analyzerMode, // Options: 'server', 'static', 'disabled'
       openAnalyzer: true,     // Automatically open report in default browser

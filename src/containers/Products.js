@@ -27,7 +27,7 @@ class ProductsContainer extends Component {
         showCart
         showInbox
         showNavigation
-        headerText="PushOn Online Shop"
+        headerText="PushMart Online Shop"
         subscription={subscription}
       >
 

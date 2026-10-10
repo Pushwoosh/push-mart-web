@@ -1,4 +1,4 @@
-# PushOn Online Shop
+# PushMart Online Shop
 
 example of web-sdk push notifications
 

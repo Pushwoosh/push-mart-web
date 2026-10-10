@@ -1,6 +1,6 @@
 {
-  "name": "PushOn Online Shop",
-  "short_name": "PushOn Online Shop",
+  "name": "PushMart Online Shop",
+  "short_name": "PushMart Online Shop",
   "gcm_sender_id": "60756016005",
   "display": "standalone",
   "gcm_user_visible_only": true

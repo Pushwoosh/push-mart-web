@@ -125,7 +125,7 @@ const withCartTracking = (WrappedComponent) => {
           logLevel: 'debug',
           applicationCode: this.props.app.code,
           safariWebsitePushID: 'web.com.pushwoosh.pushon',
-          defaultNotificationTitle: 'PushOn Online Shop',
+          defaultNotificationTitle: 'PushMart Online Shop',
           defaultNotificationImage: 'https://go.pushwoosh.com/img/web_sdk_ico.png',
           autoSubscribe: !!autoSubscribe,
           userId: this.props.app.userId,
