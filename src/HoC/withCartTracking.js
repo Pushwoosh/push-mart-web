@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import differenceBy from 'lodash/differenceBy';
 import last from 'lodash/last';
-import { getPushwoosh } from '../getPushwoosh';
 import { changeSubscription, setUserId } from '../actions/app';
 import { updateUnreadMessagesCount, updateInboxMessages, mockInboxMessages } from '../actions/inbox';
 import {
@@ -13,11 +12,24 @@ import changeWishList from '../actions/wish';
 import { initGoogleAnalytics, initHotjarTracking } from '../utils/googleAnalytics';
 import parseQueryString from '../utils/parseQueryString';
 
+const setTags = (tags) => window.Pushwoosh.push((api) => api.setTags(tags));
+
+const setPurchase = (purchase) => window.Pushwoosh.push((api) => {
+  api.setPurchase({
+    transactionDate: new Date().toISOString(),
+    currency: 'USD',
+    ...purchase,
+  });
+});
+
+const postEvent = (event, attributes = {}) => (
+  window.Pushwoosh.push((api) => api.postEvent(event, attributes))
+);
+
 const withCartTracking = (WrappedComponent) => {
   class CartTracking extends Component {
     constructor(props) {
       super(props);
-      this.PW = getPushwoosh();
       this.isCheckout = false;
       this.removeFromCartHandler = this.props.removeFromCart.bind(this);
       this.addToCartHandler = this.props.addToCart.bind(this);
@@ -40,18 +52,18 @@ const withCartTracking = (WrappedComponent) => {
 
       if (nextCartLength > currentCartLength) {
         const product = last(differenceBy(nextProps.cart, this.props.cart, (el) => el.name));
-        this.postEvent('ProductAdd', {
+        postEvent('ProductAdd', {
           id: product.nameLocal,
         });
       }
 
       const isCartEmpty = nextCartLength === 0 && nextCartLength !== currentCartLength;
       if (isCartEmpty && !this.isCheckout) {
-        this.postEvent('CartCleared');
+        postEvent('CartCleared');
       }
 
       if (nextProps.wish.length !== this.props.wish.length) {
-        this.setTags({
+        setTags({
           WishList: nextProps.wish,
         });
       }
@@ -60,39 +72,23 @@ const withCartTracking = (WrappedComponent) => {
     }
 
     onChangePermission() {
-      this.props.changeSubscription(this.PW.driver.getPermission());
-    }
-
-    setTags(tags) {
-      this.PW.push((api) => api.setTags(tags));
-    }
-
-    setPurchase(purchase) {
-      this.PW.push((api) => {
-        api.setPurchase({
-          transactionDate: new Date().toISOString(),
-          currency: 'USD',
-          ...purchase,
-        });
-      });
+      // Only ever invoked from the onPermission* handlers below, which the SDK
+      // fires after init — the instance (and its driver) is guaranteed here.
+      this.props.changeSubscription(window.Pushwoosh.driver.getPermission());
     }
 
     registerUser() {
       const { userId } = this.props.app;
       console.log(`RegisterUserId: ${userId}`); // eslint-disable-line no-console
-      this.PW.push((api) => api.registerUser(userId));
-    }
-
-    postEvent(event, attributes = {}) {
-      this.PW.push((api) => api.postEvent(event, attributes));
+      window.Pushwoosh.push((api) => api.registerUser(userId));
     }
 
     subscribe() {
-      this.PW.subscribe().then(() => {
-        this.PW.isSubscribed().then((isSubscribed) => {
-          const subscription = isSubscribed ? 'granted' : 'denied';
-          this.props.changeSubscription(subscription);
-        });
+      window.Pushwoosh.push(() => {
+        window.Pushwoosh.subscribe()
+          .then(() => window.Pushwoosh.isSubscribed())
+          .then((isSubscribed) => this.props.changeSubscription(isSubscribed ? 'granted' : 'denied'))
+          .catch(() => this.props.changeSubscription('denied'));
       });
     }
 
@@ -101,14 +97,14 @@ const withCartTracking = (WrappedComponent) => {
       this.isCheckout = true;
 
       cart.forEach(({ quantity, nameLocal, price }) => (
-        this.setPurchase({
+        setPurchase({
           productIdentifier: nameLocal,
           quantity,
           price,
         })
       ));
 
-      this.postEvent('CheckoutSuccess', { products: cart.map((item) => item.nameLocal) });
+      postEvent('CheckoutSuccess', { products: cart.map((item) => item.nameLocal) });
 
       flushCart();
 
@@ -118,10 +114,10 @@ const withCartTracking = (WrappedComponent) => {
     }
 
     initSDK() {
-      if (!this.PW.ready) {
+      if (Array.isArray(window.Pushwoosh) || !window.Pushwoosh.ready) {
         const { autoSubscribe } = parseQueryString(window.location.search);
 
-        this.PW.push(['init', {
+        window.Pushwoosh.push(['init', {
           logLevel: 'debug',
           applicationCode: this.props.app.code,
           safariWebsitePushID: 'web.com.pushwoosh.pushon',
@@ -133,32 +129,34 @@ const withCartTracking = (WrappedComponent) => {
             enable: true,
             bgColor: '#3FE3AB',
           },
+          webPopups: {
+            enable: true,
+          },
         }]);
-        this.PW.push(['onReady', () => {
+        window.Pushwoosh.push(['onReady', () => {
           this.props.mockInboxMessages();
         }]);
-        if (!this.PW.pwinbox) {
-          return;
-        }
-        this.PW.push(['onPutNewMessageToInboxStore', () => {
+        window.Pushwoosh.push(['onPutNewMessageToInboxStore', () => {
           this.updateInboxMessages();
         }]);
-        this.PW.push(['onUpdateInboxMessages', () => {
+        window.Pushwoosh.push(['onUpdateInboxMessages', () => {
           this.updateInboxMessages();
         }]);
 
-        this.PW.push(['onPermissionPrompt', this.onChangePermission]);
-        this.PW.push(['onPermissionGranted', this.onChangePermission]);
-        this.PW.push(['onPermissionDenied', this.onChangePermission]);
+        window.Pushwoosh.push(['onPermissionPrompt', this.onChangePermission]);
+        window.Pushwoosh.push(['onPermissionGranted', this.onChangePermission]);
+        window.Pushwoosh.push(['onPermissionDenied', this.onChangePermission]);
       }
     }
 
     updateInboxMessages() {
-      this.PW.pwinbox.loadMessages().then((messages) => {
-        this.props.updateInboxMessages(messages);
-      });
-      this.PW.pwinbox.unreadMessagesCount().then((count) => {
-        this.props.updateUnreadMessagesCount(count);
+      window.Pushwoosh.push(() => {
+        window.Pushwoosh.pwinbox.loadMessages().then((messages) => {
+          this.props.updateInboxMessages(messages);
+        });
+        window.Pushwoosh.pwinbox.unreadMessagesCount().then((count) => {
+          this.props.updateUnreadMessagesCount(count);
+        });
       });
     }
 
