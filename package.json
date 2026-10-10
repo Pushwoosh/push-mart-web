@@ -39,6 +39,7 @@
     "redux": "^4.0.4"
   },
   "scripts": {
+    "start": "webpack serve --history-api-fallback --port 3000",
     "build": "cross-env NODE_ENV=production webpack",
     "analyze": "cross-env NODE_ENV=production ANALYZER_MODE=server webpack",
     "deploy": "npm run build",
