@@ -12,7 +12,7 @@ function Navigation({ showCart, showInbox, subscription }) {
         <a className="navLink" href="https://www.pushwoosh.com/" rel="noopener noreferrer" target="_blank">
           Pushwoosh
         </a>
-        <a className="navLink" href="https://blog.pushwoosh.com/blog/" rel="noopener noreferrer" target="_blank">
+        <a className="navLink" href="https://www.pushwoosh.com/blog/" rel="noopener noreferrer" target="_blank">
           Blog
         </a>
         <Subscription className="navLink" status={subscription} />

@@ -9,7 +9,6 @@ import {
 } from '../../actions/inbox';
 
 import InboxList from './InboxList';
-import { getPushwoosh } from '../../getPushwoosh';
 
 const bindActions = {
   updateInboxMessages,
@@ -29,7 +28,6 @@ class Inbox extends Component {
   constructor(props) {
     super(props);
 
-    this.PW = getPushwoosh();
     this.toggleDropdown = this.toggleDropdown.bind(this);
     this.outsideClickHandler = this.outsideClickHandler.bind(this);
     this.updateReadStatus = this.updateReadStatus.bind(this);
@@ -43,55 +41,50 @@ class Inbox extends Component {
   }
 
   performActionForMessage(code) {
-    if (!this.PW.pwinbox) {
-      return;
-    }
-    this.PW.pwinbox.performActionForMessageWithCode(code)
-      .then(() => {
-        this.updateUnreadMessagesCount();
-        this.toggleDropdown();
-      });
+    window.Pushwoosh.push(() => {
+      window.Pushwoosh.pwinbox.performActionForMessageWithCode(code)
+        .then(() => {
+          this.updateUnreadMessagesCount();
+          this.toggleDropdown();
+        });
+    });
   }
 
   updateReadStatus(codes, mockCodes) {
     this.props.updateMockInboxReadStatus(mockCodes);
-    if (!this.PW.pwinbox) {
-      return;
-    }
-    this.PW.pwinbox.readMessagesWithCodes(codes)
-      .then(() => {
-        this.updateUnreadMessagesCount();
-        this.updateMessageList();
-      });
+    window.Pushwoosh.push(() => {
+      window.Pushwoosh.pwinbox.readMessagesWithCodes(codes)
+        .then(() => {
+          this.updateUnreadMessagesCount();
+          this.updateMessageList();
+        });
+    });
   }
 
   updateMessageList() {
-    if (!this.PW.pwinbox) {
-      return;
-    }
-    this.PW.pwinbox.loadMessages()
-      .then((messages) => {
-        this.props.updateInboxMessages(messages);
-      });
+    window.Pushwoosh.push(() => {
+      window.Pushwoosh.pwinbox.loadMessages()
+        .then((messages) => {
+          this.props.updateInboxMessages(messages);
+        });
+    });
   }
 
   updateUnreadMessagesCount() {
-    if (!this.PW.pwinbox) {
-      return;
-    }
-    this.PW.pwinbox.unreadMessagesCount().then((count) => {
-      this.props.updateUnreadMessagesCount(count);
+    window.Pushwoosh.push(() => {
+      window.Pushwoosh.pwinbox.unreadMessagesCount().then((count) => {
+        this.props.updateUnreadMessagesCount(count);
+      });
     });
   }
 
   removeInboxItem(code) {
-    if (!this.PW.pwinbox) {
-      return;
-    }
-    this.PW.pwinbox.deleteMessagesWithCodes([code])
-      .then(() => {
-        this.updateMessageList();
-      });
+    window.Pushwoosh.push(() => {
+      window.Pushwoosh.pwinbox.deleteMessagesWithCodes([code])
+        .then(() => {
+          this.updateMessageList();
+        });
+    });
   }
 
   outsideClickHandler(event) {
@@ -112,12 +105,7 @@ class Inbox extends Component {
       document.removeEventListener('click', this.outsideClickHandler);
       this.updateUnreadMessagesCount();
     } else {
-      if (this.PW.pwinbox) {
-        this.PW.pwinbox.loadMessages()
-          .then((messages) => {
-            this.props.updateInboxMessages(messages);
-          });
-      }
+      this.updateMessageList();
 
       this.setState({
         isOpen: true,
