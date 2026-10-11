@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 function CartItem({ item, changeQuantityHandler }) {
   const {
-    name,
+    id,
     nameLocal,
     img,
     textLocal,
@@ -33,7 +33,7 @@ function CartItem({ item, changeQuantityHandler }) {
               id="btn-plus"
               type="button"
               className="btn btn-default btn-primary"
-              onClick={() => changeQuantityHandler(name, true)}
+              onClick={() => changeQuantityHandler(id, true)}
               aria-label="Increase quantity"
             >
               <span className="glyphicon glyphicon-plus" />
@@ -50,7 +50,7 @@ function CartItem({ item, changeQuantityHandler }) {
               id="btn-minus"
               type="button"
               className="btn btn-default btn-primary"
-              onClick={() => changeQuantityHandler(name, false)}
+              onClick={() => changeQuantityHandler(id, false)}
               aria-label="Decrease quantity"
             >
               <span className="glyphicon glyphicon-minus" />

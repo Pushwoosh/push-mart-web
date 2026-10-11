@@ -5,6 +5,7 @@ import './styles/bootstrap.min.css';
 import './styles/style.css';
 import ApplicationRouter from './routes';
 import store from './store';
+import './tracking/cartTracker';
 
 // Initialize the Pushwoosh command queue before the async CDN bundle
 // (pushwoosh-web-notifications.js) loads. Until then window.Pushwoosh is this

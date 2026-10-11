@@ -1,26 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import differenceBy from 'lodash/differenceBy';
-import last from 'lodash/last';
 import { changeSubscription, setUserId } from '../actions/app';
 import { updateUnreadMessagesCount, updateInboxMessages, mockInboxMessages } from '../actions/inbox';
 import {
-  addToCart, removeFromCart, clearCart, changeProductQuantity,
+  addToCart, removeFromCart, clearCart, changeProductQuantity, restoreCart,
 } from '../actions/cart';
 import changeWishList from '../actions/wish';
 import { initGoogleAnalytics, initHotjarTracking } from '../utils/googleAnalytics';
 import parseQueryString from '../utils/parseQueryString';
+import { isEmail, normalizeUserId, postOrderCreated } from '../tracking/pwEvents';
+import { completeOrder, resendCart } from '../tracking/cartTracker';
 
 const setTags = (tags) => window.Pushwoosh.push((api) => api.setTags(tags));
-
-const setPurchase = (purchase) => window.Pushwoosh.push((api) => {
-  api.setPurchase({
-    transactionDate: new Date().toISOString(),
-    currency: 'USD',
-    ...purchase,
-  });
-});
 
 const postEvent = (event, attributes = {}) => (
   window.Pushwoosh.push((api) => api.postEvent(event, attributes))
@@ -30,7 +22,6 @@ const withCartTracking = (WrappedComponent) => {
   class CartTracking extends Component {
     constructor(props) {
       super(props);
-      this.isCheckout = false;
       this.removeFromCartHandler = this.props.removeFromCart.bind(this);
       this.addToCartHandler = this.props.addToCart.bind(this);
       this.changeWishListHandler = this.props.changeWishList.bind(this);
@@ -47,28 +38,11 @@ const withCartTracking = (WrappedComponent) => {
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
-      const nextCartLength = nextProps.cart.length;
-      const currentCartLength = this.props.cart.length;
-
-      if (nextCartLength > currentCartLength) {
-        const product = last(differenceBy(nextProps.cart, this.props.cart, (el) => el.name));
-        postEvent('ProductAdd', {
-          id: product.nameLocal,
-        });
-      }
-
-      const isCartEmpty = nextCartLength === 0 && nextCartLength !== currentCartLength;
-      if (isCartEmpty && !this.isCheckout) {
-        postEvent('CartCleared');
-      }
-
       if (nextProps.wish.length !== this.props.wish.length) {
         setTags({
           WishList: nextProps.wish,
         });
       }
-
-      this.isCheckout = false;
     }
 
     onChangePermission() {
@@ -77,10 +51,21 @@ const withCartTracking = (WrappedComponent) => {
       this.props.changeSubscription(window.Pushwoosh.driver.getPermission());
     }
 
+    // As the plugins do: the email is the userId and gets its own email channel.
+    // registerEmail reads the current userId, so it must wait for registerUser.
     registerUser() {
-      const { userId } = this.props.app;
-      console.log(`RegisterUserId: ${userId}`); // eslint-disable-line no-console
-      window.Pushwoosh.push((api) => api.registerUser(userId));
+      const userId = normalizeUserId(this.props.app.userId);
+      if (!userId) {
+        return;
+      }
+      this.props.setUserId(userId);
+      window.Pushwoosh.push(async (api) => {
+        await api.registerUser(userId);
+        if (isEmail(userId)) {
+          await api.registerEmail(userId);
+        }
+        resendCart();
+      });
     }
 
     subscribe() {
@@ -93,19 +78,14 @@ const withCartTracking = (WrappedComponent) => {
     }
 
     checkout(subscribe) {
-      const { cart, clearCart: flushCart } = this.props;
-      this.isCheckout = true;
+      const { app, cart, clearCart: flushCart } = this.props;
 
-      cart.forEach(({ quantity, nameLocal, price }) => (
-        setPurchase({
-          productIdentifier: nameLocal,
-          quantity,
-          price,
-        })
-      ));
+      postOrderCreated({ orderId: `PM-${Date.now()}`, cart, userId: normalizeUserId(app.userId) });
+      // Kept for the demo account's running journey; sent without products,
+      // so purchases stay out of the recommender's viewed tail.
+      postEvent('CheckoutSuccess');
 
-      postEvent('CheckoutSuccess', { products: cart.map((item) => item.nameLocal) });
-
+      completeOrder();
       flushCart();
 
       if (subscribe) {
@@ -114,6 +94,9 @@ const withCartTracking = (WrappedComponent) => {
     }
 
     initSDK() {
+      if (!this.props.app.code) {
+        return;
+      }
       if (Array.isArray(window.Pushwoosh) || !window.Pushwoosh.ready) {
         const { autoSubscribe } = parseQueryString(window.location.search);
 
@@ -124,7 +107,6 @@ const withCartTracking = (WrappedComponent) => {
           defaultNotificationTitle: 'PushMart Online Shop',
           defaultNotificationImage: 'https://go.pushwoosh.com/img/web_sdk_ico.png',
           autoSubscribe: !!autoSubscribe,
-          userId: this.props.app.userId,
           subscribeWidget: {
             enable: true,
             bgColor: '#3FE3AB',
@@ -209,6 +191,7 @@ const withCartTracking = (WrappedComponent) => {
     removeFromCart,
     changeWishList,
     clearCart,
+    restoreCart,
     changeSubscription,
     changeProductQuantity,
     updateUnreadMessagesCount,

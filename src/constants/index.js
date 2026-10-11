@@ -7,6 +7,7 @@ export const CART_ADD_PRODUCT = 'cart/ADD';
 export const CART_REMOVE_PRODUCT = 'cart/REMOVE';
 export const CART_PRODUCT_QUANTITY = 'cart/QUANTITY';
 export const CART_CLEAR = 'cart/CLEAR';
+export const CART_RESTORE = 'cart/RESTORE';
 
 export const WISHLIST_CHANGE = 'wish/CHANGE';
 
