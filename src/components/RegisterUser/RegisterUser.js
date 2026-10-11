@@ -23,6 +23,9 @@ function RegisterUser(props) {
           Register UserID
         </button>
       </div>
+      <p className="register-user-note">
+        To prevent spam we do not send emails to outside addresses, ask your sales/CSM for a demo
+      </p>
     </div>
   );
 }

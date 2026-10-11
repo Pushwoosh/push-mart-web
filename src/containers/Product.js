@@ -19,7 +19,7 @@ class ProductContainer extends Component {
   trackView() {
     const product = findProduct(this.props.match.params.id);
     if (product && this.props.app.code) {
-      postProductView(product);
+      postProductView(product, this.props.app.registeredUserId);
     }
   }
 
@@ -56,6 +56,7 @@ class ProductContainer extends Component {
 ProductContainer.propTypes = {
   app: PropTypes.shape({
     code: PropTypes.string,
+    registeredUserId: PropTypes.string,
     subscription: PropTypes.string.isRequired,
   }).isRequired,
   cart: PropTypes.arrayOf(PropTypes.shape({

@@ -123,8 +123,10 @@ const totals = (items) => {
   };
 };
 
-export function postProductView(product) {
+// email lets journeys filter on the recipient the same way cart and order events do.
+export function postProductView(product, userId) {
   fireEvent(PRODUCT_VIEW, {
+    ...(isEmail(userId) ? { email: userId } : {}),
     productId: product.id,
     name: product.nameLocal,
     price: Number(product.price),
