@@ -22,7 +22,7 @@ A demo web shop that shows the [Pushwoosh Web SDK](https://docs.pushwoosh.com/de
    | Add or remove a wishlist item | tag `WishList` |
    | Set an email or user ID (products page or cart) | `registerUser`; an email also gets `registerEmail` |
 
-   Cart events are sent 2 s after the last change. Whether a cart counts as abandoned is decided by
+   Cart events are sent 2 s after the last change, or at once with `sendBeacon` when the page is left. Whether a cart counts as abandoned is decided by
    the journey (e.g. *wait 30 min → no `PW_OrderCreated` → send the cart email*): the shop has no
    backend to run a timer. `orderUrl` restores the cart in any browser.
 

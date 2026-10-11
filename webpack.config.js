@@ -70,6 +70,13 @@ module.exports = {
       title: TITLE,
     }),
     ...productPages(path.join(__dirname, 'src')),
+    // Routes that links point to: a real file makes GitHub Pages answer 200, not the 404 fallback.
+    ...['cart', 'products', 'appcode'].map((route) => new HtmlWebpackPlugin({
+      template: path.join(__dirname, 'src', 'index.html'),
+      chunks: ['main'],
+      filename: `${route}/index.html`,
+      title: TITLE,
+    })),
     productFeedPlugin,
     new BundleAnalyzerPlugin({
       analyzerMode: analyzerMode, // Options: 'server', 'static', 'disabled'

@@ -9,9 +9,47 @@ export const ABANDONED_CART = 'PW_AbandonedCart';
 export const ABANDONED_CART_UPDATE = 'PW_AbandonedCartUpdate';
 export const ORDER_CREATED = 'PW_OrderCreated';
 
-const postEvent = (event, attributes) => (
-  window.Pushwoosh.push((api) => api.postEvent(event, attributes))
-);
+// Resolves when Pushwoosh accepted the event, so callers know it was delivered.
+const postEvent = (event, attributes) => new Promise((resolve, reject) => {
+  window.Pushwoosh.push((api) => api.postEvent(event, attributes).then(resolve, reject));
+});
+
+const fireEvent = (event, attributes) => postEvent(event, attributes).catch(() => {});
+
+// What a beacon needs and the page cannot read synchronously while it unloads.
+let beaconBase = null;
+
+export function prepareBeacon() {
+  window.Pushwoosh.push(async (api) => {
+    const [entrypoint, hwid, deviceType] = await Promise.all([
+      api.data.getApiEntrypoint(), api.data.getHwid(), api.data.getDeviceType(),
+    ]);
+    beaconBase = { url: `${entrypoint}postEvent`, hwid, deviceType };
+  });
+}
+
+// Same request as the SDK's postEvent, sent with sendBeacon so it outlives the page.
+export function beaconEvent({ event, attributes }, { application, userId }) {
+  if (!beaconBase || !navigator.sendBeacon) {
+    return false;
+  }
+  const now = new Date();
+  const timestampUTC = Math.floor(now.getTime() / 1000);
+  const request = {
+    application,
+    hwid: beaconBase.hwid,
+    userId: userId || beaconBase.hwid,
+    device_type: beaconBase.deviceType,
+    event,
+    attributes,
+    timestampUTC,
+    timestampCurrent: timestampUTC - now.getTimezoneOffset() * 60,
+  };
+  const body = new Blob([JSON.stringify({ request })], { type: 'text/plain;charset=UTF-8' });
+  return navigator.sendBeacon(beaconBase.url, body);
+}
+
+export const deliverEvent = ({ event, attributes }) => postEvent(event, attributes);
 
 export const isEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
@@ -59,7 +97,7 @@ const totals = (items) => {
 };
 
 export function postProductView(product) {
-  postEvent(PRODUCT_VIEW, {
+  fireEvent(PRODUCT_VIEW, {
     productId: product.id,
     name: product.nameLocal,
     price: Number(product.price),
@@ -70,26 +108,29 @@ export function postProductView(product) {
   });
 }
 
-export function postCartEvent(event, {
+export function cartEvent(event, {
   cartId, createdAt, cart, userId, orderUrl,
 }) {
   const items = lineItems(cart);
-  postEvent(event, {
-    orderId: cartId,
-    source: 1,
-    ...contact(userId),
-    items,
-    createdDate: isoLocal(createdAt),
-    abandonedDate: isoLocal(new Date()),
-    ...totals(items),
-    orderUrl,
-  });
+  return {
+    event,
+    attributes: {
+      orderId: cartId,
+      source: 1,
+      ...contact(userId),
+      items,
+      createdDate: isoLocal(createdAt),
+      abandonedDate: isoLocal(new Date()),
+      ...totals(items),
+      orderUrl,
+    },
+  };
 }
 
 export function postOrderCreated({ orderId, cart, userId }) {
   const items = lineItems(cart);
   const now = isoLocal(new Date());
-  postEvent(ORDER_CREATED, {
+  fireEvent(ORDER_CREATED, {
     orderId,
     orderNumber: orderId,
     source: 1,

@@ -1,9 +1,12 @@
 import store from '../store';
 import { SITE_ORIGIN } from '../data/catalog';
-import { ABANDONED_CART, ABANDONED_CART_UPDATE, postCartEvent } from './pwEvents';
+import {
+  ABANDONED_CART, ABANDONED_CART_UPDATE, beaconEvent, cartEvent, deliverEvent, prepareBeacon,
+} from './pwEvents';
 
 const STORAGE_KEY = 'pwCart';
 const DEBOUNCE_MS = 2000;
+const RETRY_MS = 1000;
 
 const signature = (cart) => cart.map(({ id, quantity }) => `${id}:${quantity}`).sort().join(',');
 
@@ -68,8 +71,16 @@ const recoveryUrl = (code, cart) => `${SITE_ORIGIN}/cart/?appcode=${code}&restor
 let session = load();
 let last = signature(store.getState().cart);
 let timer = null;
+let inFlight = false;
 
-function send() {
+const schedule = (ms) => {
+  clearTimeout(timer);
+  timer = setTimeout(send, ms); // eslint-disable-line no-use-before-define
+};
+
+// A cart counts as notified only once Pushwoosh accepted its PW_AbandonedCart:
+// an event lost on the way is sent again as the first one, not as an update.
+function send({ unloading = false } = {}) {
   timer = null;
   const { cart, app } = store.getState();
   if (!session || !app.code) {
@@ -80,17 +91,48 @@ function send() {
     save(null);
     return;
   }
+  if (inFlight && !session.notified && !unloading) {
+    schedule(RETRY_MS);
+    return;
+  }
 
-  postCartEvent(session.notified ? ABANDONED_CART_UPDATE : ABANDONED_CART, {
-    cartId: session.id,
+  const userId = app.registeredUserId || '';
+  const cartId = session.id;
+  const payload = cartEvent(session.notified ? ABANDONED_CART_UPDATE : ABANDONED_CART, {
+    cartId,
     createdAt: new Date(session.createdAt),
     cart,
-    userId: app.registeredUserId || '',
+    userId,
     orderUrl: recoveryUrl(app.code, cart),
   });
+  if (cart.length === 0) {
+    session = null;
+    save(null);
+  }
 
-  session = cart.length ? { ...session, notified: true } : null;
-  save(session);
+  const markNotified = () => {
+    if (session && session.id === cartId && !session.notified) {
+      session = { ...session, notified: true };
+      save(session);
+    }
+  };
+
+  if (unloading && beaconEvent(payload, { application: app.code, userId })) {
+    markNotified();
+    return;
+  }
+  inFlight = true;
+  deliverEvent(payload).then(markNotified, () => {}).finally(() => {
+    inFlight = false;
+  });
+}
+
+window.Pushwoosh = window.Pushwoosh || [];
+prepareBeacon();
+
+// The first event of a cart may have died with the previous page.
+if (session && !session.notified && store.getState().cart.length) {
+  schedule(DEBOUNCE_MS);
 }
 
 store.subscribe(() => {
@@ -112,15 +154,14 @@ store.subscribe(() => {
     };
     save(session);
   }
-  clearTimeout(timer);
-  timer = setTimeout(send, DEBOUNCE_MS);
+  schedule(DEBOUNCE_MS);
 });
 
-// A closed tab would drop the debounced event; send it while the page is still alive.
+// Leaving the page would drop the debounced event; a beacon outlives the page.
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden' && timer) {
     clearTimeout(timer);
-    send();
+    send({ unloading: true });
   }
 });
 
@@ -133,8 +174,14 @@ export function completeOrder() {
 }
 
 // The cart tag lands on whoever sent the event, so a new user needs it again.
+// A pending send already reads the new user; a first event still on its way is followed up.
 export function resendCart() {
-  if (session && session.notified && !timer) {
+  if (!session || timer) {
+    return;
+  }
+  if (session.notified) {
     send();
+  } else {
+    schedule(RETRY_MS);
   }
 }
