@@ -85,6 +85,12 @@ npm run analyze    # bundle analyzer
 - It's a single-page app (React + react-router). The build emits `index.html` for each route (`/products/`, `/cart/`, `/appcode/`), so direct links answer 200 on GitHub Pages; `404.html`, another copy, serves everything else.
 - Product pages and `feed.xml` are generated at build time from `src/data/products.json` (`build-tools/catalogPages.js`), so product links answer 200, not the 404 of the SPA fallback.
 - Pushwoosh events are built in `src/tracking/`: `pwEvents.js` holds the payloads, `cartTracker.js` follows the cart in the Redux store.
+- Onsite recommendations come from the Pushwoosh recommender through WebSDK. The product page (`also_bought`), the catalog (`viewed`) and the cart (`also_bought` minus the cart) use the headless API (`src/tracking/recommendations.js`, `src/components/Recommendations/`). The 404 page shows the no-code path instead: a `data-pw-recommendations` div that the WebSDK widget fills. For the blocks to show, three things are needed:
+  - WebSDK with `Pushwoosh.recommendations` (3.79+);
+  - the application property `onsite_recommendations` = `{"enabled": true, "origins": ["https://pushon.pushwoosh.com"]}`;
+  - a catalog feed in Product Catalog.
+
+  Without any one of them the blocks stay hidden and the shop works as before.
 
 ## Deploy
 

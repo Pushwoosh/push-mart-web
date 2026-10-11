@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Layout, ProductList } from '../components';
+import { Layout, ProductList, Recommendations } from '../components';
 import withCartTracking from '../HoC/withCartTracking';
 
 class ProductsContainer extends Component {
@@ -42,6 +42,10 @@ class ProductsContainer extends Component {
           setUserId={setUserId}
           registerUser={registerUser}
           userId={userId}
+        />
+        <Recommendations
+          title="You viewed"
+          request={{ strategy: 'viewed', limit: 6, block: 'catalog-viewed' }}
         />
       </Layout>
     );

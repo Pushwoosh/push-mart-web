@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Layout, Cart } from '../components';
+import { Layout, Cart, Recommendations } from '../components';
 import RegisterUser from '../components/RegisterUser/RegisterUser';
 import withCartTracking from '../HoC/withCartTracking';
 import { findProduct } from '../data/catalog';
@@ -96,6 +96,18 @@ class CartContainer extends Component {
           isSubscribed={subscription !== 'default'}
           changeQuantityHandler={this.changeQuantityHandler}
         />
+        {cart.length > 0 && (
+          <Recommendations
+            title="Goes well with your cart"
+            request={{
+              strategy: 'also_bought',
+              productId: cart[0].id,
+              exclude: cart.map((item) => item.id),
+              limit: 4,
+              block: 'cart-cross',
+            }}
+          />
+        )}
       </Layout>
     );
   }
