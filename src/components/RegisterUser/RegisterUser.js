@@ -5,8 +5,8 @@ import './RegisterUser.css';
 function RegisterUser(props) {
   return (
     <div className="register-user">
-      <h5>AND</h5>
-      <p>You can fill this field for register your user id</p>
+      {props.heading && <h5>{props.heading}</h5>}
+      <p>{props.hint}</p>
       <div className="register-user-container">
         <input
           type="email"
@@ -33,6 +33,13 @@ RegisterUser.propTypes = {
   setUserId: PropTypes.func,
   registerUser: PropTypes.func,
   userId: PropTypes.string,
+  heading: PropTypes.string,
+  hint: PropTypes.string,
+};
+
+RegisterUser.defaultProps = {
+  heading: 'AND',
+  hint: 'You can fill this field for register your user id',
 };
 
 export default RegisterUser;

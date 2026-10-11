@@ -12,16 +12,18 @@ const reducers = {
     },
   ]),
 
-  [constants.CART_REMOVE_PRODUCT]: (state, name) => state.filter((item) => item.name !== name),
+  [constants.CART_REMOVE_PRODUCT]: (state, id) => state.filter((item) => item.id !== id),
 
-  [constants.CART_PRODUCT_QUANTITY]: (state, { productName, enlarge }) => {
-    const product = find(state, { name: productName }) || {};
+  [constants.CART_PRODUCT_QUANTITY]: (state, { productId, enlarge }) => {
+    const product = find(state, { id: productId }) || {};
     product.quantity = enlarge ? product.quantity + 1 : product.quantity - 1;
 
     return uniq([...state, product]);
   },
 
   [constants.CART_CLEAR]: () => initialState,
+
+  [constants.CART_RESTORE]: (state, items) => items,
 };
 
 export default function cart(state = initialState, action = {}) {

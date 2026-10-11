@@ -7,20 +7,27 @@ export function addToCart(payload) {
   };
 }
 
-export function removeFromCart(productName) {
+export function removeFromCart(productId) {
   return {
     type: constants.CART_REMOVE_PRODUCT,
-    payload: productName,
+    payload: productId,
   };
 }
 
-export function changeProductQuantity(productName, enlarge) {
+export function changeProductQuantity(productId, enlarge) {
   return {
     type: constants.CART_PRODUCT_QUANTITY,
     payload: {
-      productName,
+      productId,
       enlarge,
     },
+  };
+}
+
+export function restoreCart(items) {
+  return {
+    type: constants.CART_RESTORE,
+    payload: items,
   };
 }
 

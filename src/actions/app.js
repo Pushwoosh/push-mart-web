@@ -20,6 +20,13 @@ export function changeSubscription(payload) {
   };
 }
 
+export function userRegistered(payload) {
+  return {
+    type: constants.USER_REGISTERED,
+    payload,
+  };
+}
+
 export function setUserId(payload) {
   return {
     type: constants.SET_USER_ID,

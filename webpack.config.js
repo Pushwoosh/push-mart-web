@@ -5,6 +5,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const { TITLE, productPages, productFeedPlugin } = require('./build-tools/catalogPages');
 
 const isProduction = process.env.NODE_ENV === 'production';
 const analyzerMode = process.env.ANALYZER_MODE || 'disabled';
@@ -58,14 +59,18 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', 'index.html'),
-      chunks: ['main']
+      chunks: ['main'],
+      title: TITLE,
     }),
     // GitHub Pages has no SPA fallback: serve the app for unknown routes too.
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', 'index.html'),
       chunks: ['main'],
       filename: '404.html',
+      title: TITLE,
     }),
+    ...productPages(path.join(__dirname, 'src')),
+    productFeedPlugin,
     new BundleAnalyzerPlugin({
       analyzerMode: analyzerMode, // Options: 'server', 'static', 'disabled'
       openAnalyzer: true,     // Automatically open report in default browser

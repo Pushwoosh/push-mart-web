@@ -1,10 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+import { productPath } from '../../../data/catalog';
 
 function ProductItem(props) {
   const { item, isInWishList, isInCart } = props;
   const { addToCartHandler, removeFromCartHandler, changeWishListHandler } = props;
   const {
+    id,
     name,
     nameLocal,
     img,
@@ -14,9 +17,11 @@ function ProductItem(props) {
 
   return (
     <li key={name} className="product-list__item">
-      <h5>{nameLocal}</h5>
+      <h5><Link to={productPath(id)}>{nameLocal}</Link></h5>
       <div className="product thumbnail">
-        <img src={`${img}.jpg`} alt="product" />
+        <Link to={productPath(id)}>
+          <img src={`${img}.jpg`} alt={nameLocal} />
+        </Link>
         <div className="caption">
           <div className="product__price">
             $
@@ -27,7 +32,7 @@ function ProductItem(props) {
               type="button"
               className="btn btn-primary"
               onClick={isInCart
-                ? () => removeFromCartHandler(name)
+                ? () => removeFromCartHandler(id)
                 : () => addToCartHandler(item)}
             >
               {isInCart ? 'Remove from cart' : 'Add to cart'}

@@ -4,11 +4,26 @@ import {
   Router, Route, Switch, Redirect,
 } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
-import { Products, AppCodePrompt, Cart } from './containers';
+import {
+  Products, AppCodePrompt, Cart, Product,
+} from './containers';
+import { NotFound } from './components';
+import { saveApp } from './actions/app';
 import parseQueryString from './utils/parseQueryString';
 import store from './store';
 
+const APP_CODE = /^\w{5}-\w{5}$/;
+
+// Links from emails and journeys carry ?appcode=, so they work in a fresh browser too.
+function saveAppCodeFromQuery(search) {
+  const { appcode } = parseQueryString(search);
+  if (appcode && APP_CODE.test(appcode) && appcode !== store.getState().app.code) {
+    store.dispatch(saveApp(appcode));
+  }
+}
+
 function RouteWithAppCode({ component: Component, ...rest }) {
+  saveAppCodeFromQuery(window.location.search);
   const state = store.getState();
 
   return (
@@ -80,9 +95,18 @@ function ApplicationRouter() {
           path="/cart"
           component={Cart}
         />
+        <Route
+          path="/product/:id"
+          render={(props) => {
+            saveAppCodeFromQuery(props.location.search);
+            return <Product {...props} />;
+          }}
+        />
         <RootRoute
+          exact
           path="/"
         />
+        <Route component={NotFound} />
       </Switch>
     </Router>
   );

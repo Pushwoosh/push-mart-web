@@ -47,7 +47,7 @@ function ProductList({
                     key={item.id}
                     item={item}
                     isInWishList={wishList.indexOf(item.name) >= 0}
-                    isInCart={cartItems.some((cItem) => cItem.name === item.name)}
+                    isInCart={cartItems.some((cItem) => cItem.id === item.id)}
                     {...handlers}
                   />
                 ))}
