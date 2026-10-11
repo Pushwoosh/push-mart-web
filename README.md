@@ -6,7 +6,8 @@ A demo web shop that shows the [Pushwoosh Web SDK](https://docs.pushwoosh.com/de
 
 ## Try it
 
-1. Open https://pushon.pushwoosh.com/?appcode=5854E-296FF — `5854E-296FF` is the Pushwoosh demo app.
+1. Open https://pushon.pushwoosh.com/?appcode=F7DA3-5BF79 — `F7DA3-5BF79` is the PushMart Demo app: web push, email, the
+   product catalog and the demo journeys below are set up there.
    Want pushes from your own app instead? Pass its code: `?appcode=XXXXX-XXXXX`, or enter it on the start screen.
 2. Click **Subscribe** and allow notifications in the browser prompt. Use a regular desktop browser (Chrome, Firefox, Edge, Safari); incognito and headless browsers can't receive pushes.
 3. Play with the shop — the SDK reports what you do. Event names and attributes are the ones the
@@ -28,6 +29,17 @@ A demo web shop that shows the [Pushwoosh Web SDK](https://docs.pushwoosh.com/de
    backend to run a timer. `orderUrl` restores the cart in any browser.
 
 4. Send a push from the [Pushwoosh Control Panel](https://app.pushwoosh.com) of the app you subscribed with — target all subscribers, your user ID, or an audience built from the tags and events above. The notification arrives even when the tab is closed.
+
+### Demo journeys
+
+The PushMart Demo app runs three journeys. They email **only addresses ending with `@pushwoosh.com`**
+(filter on the `email` attribute of the trigger event), so register with your work email to see them:
+
+| Journey | Trigger | Email |
+|---|---|---|
+| Abandoned cart | cart event, then no `PW_OrderCreated` within 15 min | the cart (cart block) + bestsellers |
+| Thank you | `PW_OrderCreated`, 5 min later | products bought together with what you viewed |
+| Browse abandonment | `PW_ProductView`, then no `PW_AbandonedCart` within 30 min | products picked from your views + trending |
 
 ### Product catalog
 
