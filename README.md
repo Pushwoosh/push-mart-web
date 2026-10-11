@@ -32,14 +32,18 @@ A demo web shop that shows the [Pushwoosh Web SDK](https://docs.pushwoosh.com/de
 
 ### Demo journeys
 
-The PushMart Demo app runs three journeys. They email **only addresses ending with `@pushwoosh.com`**
-(filter on the `email` attribute of the trigger event), so register with your work email to see them:
+The PushMart Demo app runs three journeys (live since 2026-10-11). They email **only addresses ending with
+`@pushwoosh.com`** (filter on the `email` attribute of the trigger event), so register with your work email
+to see them. The sender is `pushmart@nice-games.net`.
 
-| Journey | Trigger | Email |
-|---|---|---|
-| Abandoned cart | cart event, then no `PW_OrderCreated` within 15 min | the cart (cart block) + bestsellers |
-| Thank you | `PW_OrderCreated`, 5 min later | products bought together with what you viewed |
-| Browse abandonment | `PW_ProductView`, then no `PW_AbandonedCart` within 30 min | products picked from your views + trending |
+| Journey | Trigger | Email | Re-entry |
+|---|---|---|---|
+| Abandoned cart | `PW_AbandonedCart` or `PW_AbandonedCartUpdate`, then no `PW_OrderCreated` within 15 min | the cart (cart block) + bestsellers of the week | once per hour |
+| Thank you | `PW_OrderCreated`, 5 min later | products bought together with what you viewed | once per 10 min |
+| Browse abandonment | `PW_ProductView`, then no `PW_AbandonedCart` within 30 min | products picked from your views + trending | once per day |
+
+A visitor who already entered a journey enters it again only after the re-entry interval, so for a second
+run use another address (e.g. `name+demo2@pushwoosh.com`).
 
 ### Product catalog
 
