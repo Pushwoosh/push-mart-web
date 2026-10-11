@@ -1,0 +1,44 @@
+.recommendations {
+  margin-top: 32px;
+}
+
+.recommendations__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.recommendations__item a {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.recommendations__image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.recommendations__name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.recommendations__price {
+  font-weight: 600;
+}
+
+/* the 404 block is the WebSDK widget: themed through its custom properties */
+.recommendations-widget {
+  --pw-reco-columns: 4;
+  --pw-reco-radius: 0;
+  --pw-reco-accent: #337ab7;
+  margin-top: 32px;
+  text-align: left;
+}

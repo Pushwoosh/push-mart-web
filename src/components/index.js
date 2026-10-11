@@ -6,3 +6,4 @@ export { default as ProductList } from './Products/List';
 export { default as Cart } from './Cart/Cart';
 export { default as ProductPage } from './ProductPage/ProductPage';
 export { default as NotFound } from './NotFound';
+export { default as Recommendations } from './Recommendations/Recommendations';

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Layout, NotFound, ProductPage } from '../components';
+import {
+  Layout, NotFound, ProductPage, Recommendations,
+} from '../components';
 import withCartTracking from '../HoC/withCartTracking';
 import { findProduct } from '../data/catalog';
 import { postProductView } from '../tracking/pwEvents';
@@ -47,6 +49,12 @@ class ProductContainer extends Component {
           hasAppCode={!!code}
           addToCartHandler={addToCart}
           removeFromCartHandler={removeFromCart}
+        />
+        <Recommendations
+          title="Bought together"
+          request={{
+            strategy: 'also_bought', productId: product.id, fallback: 'bestsellers_30d', limit: 4, block: 'pdp-also-bought',
+          }}
         />
       </Layout>
     );
