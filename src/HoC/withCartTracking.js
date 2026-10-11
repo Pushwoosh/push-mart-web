@@ -62,14 +62,20 @@ const withCartTracking = (WrappedComponent) => {
       window.Pushwoosh.push(async (api) => {
         try {
           await api.registerUser(userId);
-          this.props.userRegistered(userId);
-          if (isEmail(userId)) {
-            await api.registerEmail(userId);
-          }
-          resendCart();
         } catch (error) {
-          console.error('Pushwoosh: user registration failed', error); // eslint-disable-line no-console
+          console.error('Pushwoosh: registerUser failed', error); // eslint-disable-line no-console
+          return;
         }
+        this.props.userRegistered(userId);
+        // A rejected email (status 210) leaves the user registered: the cart still moves to it.
+        if (isEmail(userId)) {
+          try {
+            await api.registerEmail(userId);
+          } catch (error) {
+            console.error('Pushwoosh: registerEmail failed', error); // eslint-disable-line no-console
+          }
+        }
+        resendCart();
       });
     }
 

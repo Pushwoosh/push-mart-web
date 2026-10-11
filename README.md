@@ -22,7 +22,8 @@ A demo web shop that shows the [Pushwoosh Web SDK](https://docs.pushwoosh.com/de
    | Add or remove a wishlist item | tag `WishList` |
    | Set an email or user ID (products page or cart) | `registerUser`; an email also gets `registerEmail` |
 
-   Cart events are sent 2 s after the last change. Whether a cart counts as abandoned is decided by
+   Cart events are sent 2 s after the last change; a change still waiting when the page is left goes
+   out at once with `sendBeacon`. Whether a cart counts as abandoned is decided by
    the journey (e.g. *wait 30 min → no `PW_OrderCreated` → send the cart email*): the shop has no
    backend to run a timer. `orderUrl` restores the cart in any browser.
 
@@ -65,7 +66,7 @@ npm run analyze    # bundle analyzer
 
 - The SDK is loaded from the CDN (`https://cdn.pushwoosh.com/webpush/v3/pushwoosh-web-notifications.js`, see `src/index.html`) and initialized in `src/HoC/withCartTracking.js`.
 - `public/pushwoosh-service-worker.js` imports the Pushwoosh service worker from the CDN. It must be served from the site root, so its scope covers the whole site.
-- It's a single-page app (React + react-router). The build also emits `404.html` as a copy of `index.html`, so direct links like `/products/` work on GitHub Pages.
+- It's a single-page app (React + react-router). The build emits `index.html` for each route (`/products/`, `/cart/`, `/appcode/`), so direct links answer 200 on GitHub Pages; `404.html`, another copy, serves everything else.
 - Product pages and `feed.xml` are generated at build time from `src/data/products.json` (`build-tools/catalogPages.js`), so product links answer 200, not the 404 of the SPA fallback.
 - Pushwoosh events are built in `src/tracking/`: `pwEvents.js` holds the payloads, `cartTracker.js` follows the cart in the Redux store.
 
