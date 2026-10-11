@@ -15,7 +15,7 @@ A demo web shop that shows the [Pushwoosh Web SDK](https://docs.pushwoosh.com/de
 
    | Action | Sent to Pushwoosh |
    |---|---|
-   | Open a product page | event `PW_ProductView` (`productId`, `name`, `price`, `category`, …) |
+   | Open a product page | event `PW_ProductView` (`productId`, `name`, `price`, `category`, …; `email` once one is set) |
    | First change of a cart | event `PW_AbandonedCart` (`orderId` = cart id, `items[]`, `totalPrice`, `orderUrl`, …) |
    | Every later change of that cart, emptying it, or setting an email | event `PW_AbandonedCartUpdate` |
    | Checkout | event `PW_OrderCreated` (`orderId`, `items[]`, `totalPrice`, `status`, …) + `CheckoutSuccess` |

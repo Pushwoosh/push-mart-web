@@ -7,6 +7,9 @@ function RegisterUser(props) {
     <div className="register-user">
       {props.heading && <h5>{props.heading}</h5>}
       <p>{props.hint}</p>
+      <p className="register-user-note">
+        To prevent spam we do not send emails to outside addresses, ask your sales/CSM for a demo
+      </p>
       <div className="register-user-container">
         <input
           type="email"
