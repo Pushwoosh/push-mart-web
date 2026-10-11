@@ -109,7 +109,12 @@ function ApplicationRouter() {
           path="/"
         />
         {/* on a direct 404 load nothing else starts the SDK, and its block needs it */}
-        <Route component={NotFoundPage} />
+        <Route
+          render={(props) => {
+            saveAppCodeFromQuery(props.location.search);
+            return <NotFoundPage {...props} />;
+          }}
+        />
       </Switch>
     </Router>
   );
