@@ -8,11 +8,13 @@ import {
   Products, AppCodePrompt, Cart, Product,
 } from './containers';
 import { NotFound } from './components';
+import withCartTracking from './HoC/withCartTracking';
 import { saveApp } from './actions/app';
 import parseQueryString from './utils/parseQueryString';
 import store from './store';
 
 const APP_CODE = /^\w{5}-\w{5}$/;
+const NotFoundPage = withCartTracking(NotFound);
 
 // Links from emails and journeys carry ?appcode=, so they work in a fresh browser too.
 function saveAppCodeFromQuery(search) {
@@ -106,7 +108,8 @@ function ApplicationRouter() {
           exact
           path="/"
         />
-        <Route component={NotFound} />
+        {/* on a direct 404 load nothing else starts the SDK, and its block needs it */}
+        <Route component={NotFoundPage} />
       </Switch>
     </Router>
   );
