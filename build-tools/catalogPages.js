@@ -2,26 +2,17 @@
 // not the 404 of the SPA fallback) and a Google Merchant feed for Pushwoosh Product Catalog.
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const catalog = require('../src/data/products.json');
+const {
+  SITE_ORIGIN, CURRENCY, products, productUrl, imageUrl, describe,
+} = require('../src/data/catalogCore');
 
-const SITE_ORIGIN = 'https://pushon.pushwoosh.com';
-const CURRENCY = 'USD';
 const TITLE = 'PushMart Online Shop';
-
-const products = catalog.flatMap(({ title, items }) => (
-  items.map((item) => ({ ...item, category: title }))
-));
-
-const describe = ({ textLocal }) => (Array.isArray(textLocal) ? textLocal.join(' • ') : textLocal);
 
 const xml = (value) => String(value)
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
   .replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;');
-
-const productUrl = (id) => `${SITE_ORIGIN}/product/${id}/`;
-const imageUrl = (product) => `${SITE_ORIGIN}${product.img}.jpg`;
 
 function productPages(template) {
   return products.map((product) => new HtmlWebpackPlugin({

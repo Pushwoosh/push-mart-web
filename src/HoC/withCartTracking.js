@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { changeSubscription, setUserId } from '../actions/app';
+import { changeSubscription, setUserId, userRegistered } from '../actions/app';
 import { updateUnreadMessagesCount, updateInboxMessages, mockInboxMessages } from '../actions/inbox';
 import {
   addToCart, removeFromCart, clearCart, changeProductQuantity, restoreCart,
@@ -60,11 +60,16 @@ const withCartTracking = (WrappedComponent) => {
       }
       this.props.setUserId(userId);
       window.Pushwoosh.push(async (api) => {
-        await api.registerUser(userId);
-        if (isEmail(userId)) {
-          await api.registerEmail(userId);
+        try {
+          await api.registerUser(userId);
+          this.props.userRegistered(userId);
+          if (isEmail(userId)) {
+            await api.registerEmail(userId);
+          }
+          resendCart();
+        } catch (error) {
+          console.error('Pushwoosh: user registration failed', error); // eslint-disable-line no-console
         }
-        resendCart();
       });
     }
 
@@ -79,8 +84,11 @@ const withCartTracking = (WrappedComponent) => {
 
     checkout(subscribe) {
       const { app, cart, clearCart: flushCart } = this.props;
+      if (cart.length === 0) {
+        return;
+      }
 
-      postOrderCreated({ orderId: `PM-${Date.now()}`, cart, userId: normalizeUserId(app.userId) });
+      postOrderCreated({ orderId: `PM-${Date.now()}`, cart, userId: app.registeredUserId || '' });
       // Kept for the demo account's running journey; sent without products,
       // so purchases stay out of the recommender's viewed tail.
       postEvent('CheckoutSuccess');
@@ -160,7 +168,8 @@ const withCartTracking = (WrappedComponent) => {
   CartTracking.propTypes = {
     app: PropTypes.shape({
       userId: PropTypes.string.isRequired,
-      code: PropTypes.string.isRequired,
+      registeredUserId: PropTypes.string,
+      code: PropTypes.string,
       subscription: PropTypes.string.isRequired,
     }).isRequired,
     cart: PropTypes.arrayOf(PropTypes.shape({
@@ -178,6 +187,7 @@ const withCartTracking = (WrappedComponent) => {
     clearCart: PropTypes.func.isRequired,
     changeSubscription: PropTypes.func.isRequired,
     setUserId: PropTypes.func.isRequired,
+    userRegistered: PropTypes.func.isRequired,
   };
 
   const mapStateToProps = ({ app, cart, wish }) => ({
@@ -198,6 +208,7 @@ const withCartTracking = (WrappedComponent) => {
     updateInboxMessages,
     mockInboxMessages,
     setUserId,
+    userRegistered,
   };
 
   return connect(mapStateToProps, bindActions)(CartTracking);

@@ -3,11 +3,13 @@ import {
   APP_CLEAR,
   CHANGE_SUBSCRIPTION,
   SET_USER_ID,
+  USER_REGISTERED,
 } from '../constants';
 
 const initialState = {
   code: null,
   userId: '',
+  registeredUserId: '',
   subscription: 'default',
 };
 
@@ -36,6 +38,13 @@ const appReducer = (state = initialState, action) => {
       return {
         ...state,
         userId: action.payload,
+      };
+    }
+
+    case USER_REGISTERED: {
+      return {
+        ...state,
+        registeredUserId: action.payload,
       };
     }
 

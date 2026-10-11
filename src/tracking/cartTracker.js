@@ -15,13 +15,24 @@ const load = () => {
   }
 };
 
+// Storage can be full or blocked; the cart then lives for this page only.
 const save = (session) => {
-  if (session) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-  } else {
-    localStorage.removeItem(STORAGE_KEY);
+  try {
+    if (session) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  } catch (e) {
+    // keep the in-memory session
   }
 };
+
+const newCartId = () => (window.crypto && window.crypto.randomUUID
+  ? window.crypto.randomUUID()
+  : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`);
+
+const MAX_QUANTITY = 99;
 
 const toPairs = (cart) => cart.map(({ id, quantity }) => [id, quantity]);
 
@@ -30,16 +41,24 @@ export const encodeCart = (cart) => btoa(JSON.stringify(toPairs(cart)))
   .replace(/\//g, '_')
   .replace(/=+$/, '');
 
+// The link is user-editable: unknown shapes are dropped, repeated ids merged, quantities clamped.
 export const decodeCart = (value) => {
+  let pairs;
   try {
-    const pairs = JSON.parse(atob(value.replace(/-/g, '+').replace(/_/g, '/')));
-    return pairs.map(([id, quantity]) => ({
-      id: String(id),
-      quantity: Math.max(1, Number(quantity) || 1),
-    }));
+    pairs = JSON.parse(atob(value.replace(/-/g, '+').replace(/_/g, '/')));
   } catch (e) {
     return [];
   }
+  if (!Array.isArray(pairs)) {
+    return [];
+  }
+
+  const quantities = new Map();
+  pairs.filter((pair) => Array.isArray(pair) && typeof pair[0] === 'string').forEach(([id, qty]) => {
+    const quantity = Math.floor(Number(qty)) || 1;
+    quantities.set(id, Math.min(MAX_QUANTITY, (quantities.get(id) || 0) + Math.max(1, quantity)));
+  });
+  return [...quantities].map(([id, quantity]) => ({ id, quantity }));
 };
 
 const recoveryUrl = (code, cart) => `${SITE_ORIGIN}/cart/?appcode=${code}&restore=${encodeCart(cart)}`;
@@ -66,7 +85,7 @@ function send() {
     cartId: session.id,
     createdAt: new Date(session.createdAt),
     cart,
-    userId: app.userId,
+    userId: app.registeredUserId || '',
     orderUrl: recoveryUrl(app.code, cart),
   });
 
@@ -87,7 +106,7 @@ store.subscribe(() => {
       return;
     }
     session = {
-      id: window.crypto.randomUUID(),
+      id: newCartId(),
       createdAt: new Date().toISOString(),
       notified: false,
     };
@@ -95,6 +114,14 @@ store.subscribe(() => {
   }
   clearTimeout(timer);
   timer = setTimeout(send, DEBOUNCE_MS);
+});
+
+// A closed tab would drop the debounced event; send it while the page is still alive.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && timer) {
+    clearTimeout(timer);
+    send();
+  }
 });
 
 // The cart became an order: nothing is left to abandon.

@@ -108,6 +108,7 @@ CartContainer.propTypes = {
     userId: PropTypes.string.isRequired,
   }).isRequired,
   cart: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     nameLocal: PropTypes.string.isRequired,
     img: PropTypes.string.isRequired,

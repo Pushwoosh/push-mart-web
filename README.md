@@ -1,6 +1,6 @@
 # PushMart Online Shop
 
-A demo web shop that shows the [Pushwoosh Web SDK](https://docs.pushwoosh.com/developer/pushwoosh-sdk/web-push-notifications/) in action: web push subscription, in-app messages and Inbox, tags, events and purchases.
+A demo web shop that shows the [Pushwoosh Web SDK](https://docs.pushwoosh.com/developer/pushwoosh-sdk/web-push-notifications/) in action: web push subscription, in-app messages and Inbox, tags and e-commerce events.
 
 **Live:** https://pushon.pushwoosh.com
 
