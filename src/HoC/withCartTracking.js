@@ -128,6 +128,10 @@ const withCartTracking = (WrappedComponent) => {
           webPopups: {
             enable: true,
           },
+          // the 404 block is rendered by React after load, so the SDK must keep watching for it
+          recommendations: {
+            spa: true,
+          },
         }]);
         window.Pushwoosh.push(['onReady', () => {
           this.props.mockInboxMessages();
