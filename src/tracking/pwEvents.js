@@ -9,23 +9,45 @@ export const ABANDONED_CART = 'PW_AbandonedCart';
 export const ABANDONED_CART_UPDATE = 'PW_AbandonedCartUpdate';
 export const ORDER_CREATED = 'PW_OrderCreated';
 
-// Resolves when Pushwoosh accepted the event, so callers know it was delivered.
+// Resolves when Pushwoosh accepted the event, rejects when it did not.
 const postEvent = (event, attributes) => new Promise((resolve, reject) => {
   window.Pushwoosh.push((api) => api.postEvent(event, attributes).then(resolve, reject));
 });
 
+// Fire and forget, for events nothing waits on (views, orders).
 const fireEvent = (event, attributes) => postEvent(event, attributes).catch(() => {});
 
 // What a beacon needs and the page cannot read synchronously while it unloads.
 let beaconBase = null;
+const BEACON_POLL_MS = 250;
+const BEACON_POLL_TRIES = 240;
 
-export function prepareBeacon() {
-  window.Pushwoosh.push(async (api) => {
-    const [entrypoint, hwid, deviceType] = await Promise.all([
-      api.data.getApiEntrypoint(), api.data.getHwid(), api.data.getDeviceType(),
-    ]);
-    beaconBase = { url: `${entrypoint}postEvent`, hwid, deviceType };
-  });
+// push(fn) waits for the SDK's ready, which follows network calls; the hwid exists well
+// before that, so read it from the SDK instance as soon as the CDN script has loaded.
+export function prepareBeacon(triesLeft = BEACON_POLL_TRIES) {
+  const sdk = window.Pushwoosh;
+  const data = sdk && !Array.isArray(sdk) && sdk.api && sdk.api.data;
+  const retry = () => {
+    if (!beaconBase && triesLeft > 1) {
+      setTimeout(() => prepareBeacon(triesLeft - 1), BEACON_POLL_MS);
+    }
+  };
+  if (!data) {
+    retry();
+    return;
+  }
+  Promise.all([
+    data.getApiEntrypoint(), data.getHwid(), data.getDeviceType(),
+    data.getDeviceModel(), data.getLanguage(), data.getSdkVersion(),
+  ]).then(([entrypoint, hwid, deviceType, deviceModel, language, version]) => {
+    if (!hwid || !deviceType) {
+      retry();
+      return;
+    }
+    beaconBase = {
+      url: `${entrypoint}postEvent`, hwid, deviceType, deviceModel, language, version,
+    };
+  }, retry);
 }
 
 // Same request as the SDK's postEvent, sent with sendBeacon so it outlives the page.
@@ -40,6 +62,10 @@ export function beaconEvent({ event, attributes }, { application, userId }) {
     hwid: beaconBase.hwid,
     userId: userId || beaconBase.hwid,
     device_type: beaconBase.deviceType,
+    device_model: beaconBase.deviceModel,
+    language: beaconBase.language || navigator.language,
+    timezone: -now.getTimezoneOffset() * 60,
+    v: beaconBase.version,
     event,
     attributes,
     timestampUTC,
@@ -49,6 +75,7 @@ export function beaconEvent({ event, attributes }, { application, userId }) {
   return navigator.sendBeacon(beaconBase.url, body);
 }
 
+// postEvent for a payload built by cartEvent; the cart tracker marks the cart sent on resolve.
 export const deliverEvent = ({ event, attributes }) => postEvent(event, attributes);
 
 export const isEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);

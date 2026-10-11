@@ -98,7 +98,11 @@ function send({ unloading = false } = {}) {
 
   const userId = app.registeredUserId || '';
   const cartId = session.id;
-  const payload = cartEvent(session.notified ? ABANDONED_CART_UPDATE : ABANDONED_CART, {
+  // Leaving while the first event is still on its way: an update can't duplicate it,
+  // and if that first one is lost the next visit sends it again.
+  const firstPending = unloading && inFlight && !session.notified;
+  const isFirst = !session.notified && !firstPending;
+  const payload = cartEvent(isFirst ? ABANDONED_CART : ABANDONED_CART_UPDATE, {
     cartId,
     createdAt: new Date(session.createdAt),
     cart,
@@ -118,11 +122,13 @@ function send({ unloading = false } = {}) {
   };
 
   if (unloading && beaconEvent(payload, { application: app.code, userId })) {
-    markNotified();
+    if (isFirst) {
+      markNotified();
+    }
     return;
   }
   inFlight = true;
-  deliverEvent(payload).then(markNotified, () => {}).finally(() => {
+  deliverEvent(payload).then(isFirst ? markNotified : () => {}, () => {}).finally(() => {
     inFlight = false;
   });
 }
