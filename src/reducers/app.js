@@ -1,6 +1,7 @@
 import {
   APP_SAVE,
   APP_CLEAR,
+  APP_SET_API_URL,
   CHANGE_SUBSCRIPTION,
   SET_USER_ID,
   USER_REGISTERED,
@@ -8,6 +9,7 @@ import {
 
 const initialState = {
   code: null,
+  apiUrl: '',
   userId: '',
   registeredUserId: '',
   subscription: 'default',
@@ -20,6 +22,13 @@ const appReducer = (state = initialState, action) => {
       return {
         ...state,
         code: action.payload,
+      };
+    }
+
+    case APP_SET_API_URL: {
+      return {
+        ...state,
+        apiUrl: action.payload,
       };
     }
 

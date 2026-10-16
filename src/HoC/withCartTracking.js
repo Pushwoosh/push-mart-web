@@ -117,6 +117,7 @@ const withCartTracking = (WrappedComponent) => {
         window.Pushwoosh.push(['init', {
           logLevel: 'debug',
           applicationCode: this.props.app.code,
+          ...(this.props.app.apiUrl ? { pushwooshUrl: this.props.app.apiUrl } : {}),
           safariWebsitePushID: 'web.com.pushwoosh.pushon',
           defaultNotificationTitle: 'PushMart Online Shop',
           defaultNotificationImage: 'https://go.pushwoosh.com/img/web_sdk_ico.png',
@@ -180,6 +181,7 @@ const withCartTracking = (WrappedComponent) => {
       userId: PropTypes.string.isRequired,
       registeredUserId: PropTypes.string,
       code: PropTypes.string,
+      apiUrl: PropTypes.string,
       subscription: PropTypes.string.isRequired,
     }).isRequired,
     cart: PropTypes.arrayOf(PropTypes.shape({

@@ -1,5 +1,6 @@
 export const APP_SAVE = 'app/SAVE';
 export const APP_CLEAR = 'app/CLEAR';
+export const APP_SET_API_URL = 'app/SET_API_URL';
 export const CHANGE_SUBSCRIPTION = 'app/CHANGE_SUBSCRIPTION';
 export const SET_USER_ID = 'app/SET_USER_ID';
 export const USER_REGISTERED = 'app/USER_REGISTERED';

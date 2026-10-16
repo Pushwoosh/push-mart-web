@@ -7,6 +7,13 @@ export function saveApp(payload) {
   };
 }
 
+export function setApiUrl(payload) {
+  return {
+    type: constants.APP_SET_API_URL,
+    payload,
+  };
+}
+
 export function clearApp() {
   return {
     type: constants.APP_CLEAR,
