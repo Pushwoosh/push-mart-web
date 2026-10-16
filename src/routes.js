@@ -9,8 +9,9 @@ import {
 } from './containers';
 import { NotFound } from './components';
 import withCartTracking from './HoC/withCartTracking';
-import { saveApp } from './actions/app';
+import { saveApp, setApiUrl } from './actions/app';
 import parseQueryString from './utils/parseQueryString';
+import parseApiUrl from './utils/apiUrl';
 import store from './store';
 
 const APP_CODE = /^\w{5}-\w{5}$/;
@@ -24,7 +25,16 @@ function saveAppCodeFromQuery(search) {
   }
 }
 
+// ?apiurl= picks the Pushwoosh API region; it sticks like the app code, ?apiurl=default resets it.
+function saveApiUrlFromQuery(search) {
+  const apiUrl = parseApiUrl(parseQueryString(search).apiurl);
+  if (apiUrl !== null && apiUrl !== store.getState().app.apiUrl) {
+    store.dispatch(setApiUrl(apiUrl));
+  }
+}
+
 function RouteWithAppCode({ component: Component, ...rest }) {
+  saveApiUrlFromQuery(window.location.search);
   saveAppCodeFromQuery(window.location.search);
   const state = store.getState();
 
@@ -53,6 +63,7 @@ RouteWithAppCode.propTypes = {
 };
 
 function RootRoute(rootProps) {
+  saveApiUrlFromQuery(rootProps.location.search);
   const queryParams = parseQueryString(rootProps.location.search);
   const state = store.getState();
   const applicationCode = queryParams.appcode;
@@ -100,6 +111,7 @@ function ApplicationRouter() {
         <Route
           path="/product/:id"
           render={(props) => {
+            saveApiUrlFromQuery(props.location.search);
             saveAppCodeFromQuery(props.location.search);
             return <Product {...props} />;
           }}
@@ -111,6 +123,7 @@ function ApplicationRouter() {
         {/* on a direct 404 load nothing else starts the SDK, and its block needs it */}
         <Route
           render={(props) => {
+            saveApiUrlFromQuery(props.location.search);
             saveAppCodeFromQuery(props.location.search);
             return <NotFoundPage {...props} />;
           }}

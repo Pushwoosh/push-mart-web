@@ -57,6 +57,11 @@ Query parameters:
 - `appcode=XXXXX-XXXXX` — application code to initialize the SDK with. Works on any page, so links
   from emails (product pages, the cart recovery link) open in a fresh browser too.
 - `autoSubscribe=1` — show the browser permission prompt right after the SDK initializes.
+- `apiurl=<host or URL>` — Pushwoosh API endpoint for the SDK, for apps hosted in another region:
+  `?appcode=XXXXX-XXXXX&apiurl=api.pushwoosh.us`. A bare host gets `/json/1.3/` appended. Only
+  `https` hosts under `pushwoosh.com` and `pushwoosh.us` are accepted, so a crafted link cannot send
+  visitor data elsewhere. The value is kept like the app code; `apiurl=default` goes back to the SDK
+  default.
 
 ## Run locally
 
