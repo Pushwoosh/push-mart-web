@@ -118,7 +118,7 @@ const withCartTracking = (WrappedComponent) => {
           logLevel: 'debug',
           applicationCode: this.props.app.code,
           ...(this.props.app.apiUrl ? { pushwooshUrl: this.props.app.apiUrl } : {}),
-          safariWebsitePushID: 'web.com.pushwoosh.pushon',
+          unifiedPlatform: true,
           defaultNotificationTitle: 'PushMart Online Shop',
           defaultNotificationImage: 'https://go.pushwoosh.com/img/web_sdk_ico.png',
           autoSubscribe: !!autoSubscribe,
