@@ -34,6 +34,7 @@ function Cart(props) {
 
   return (
     <div className="cart">
+      <div id="pw-cart-slot" className="pw-placement-slot" />
       {cartItems.length > 0 ? (
         <div>
           {cartItems.map((item) => (
