@@ -45,6 +45,14 @@ to see them. The sender is `pushmart@nice-games.net`.
 A visitor who already entered a journey enters it again only after the re-entry interval, so for a second
 run use another address (e.g. `name+demo2@pushwoosh.com`).
 
+### Journey web placements
+
+Every shop page — the product list, a product page and the cart — has an empty slot
+`<div id="pw-cart-slot">` for an inline block of a journey **Web placement** step (e.g. *abandoned cart →
+inline block with the cart products on the site → no order → push*). Point the step at the CSS selector
+`#pw-cart-slot`; a popup placement needs no slot. The slot stays empty and takes no space until the SDK
+puts a block into it.
+
 ### Product catalog
 
 Every product has its own page, `https://pushon.pushwoosh.com/product/<id>/`, and the build publishes

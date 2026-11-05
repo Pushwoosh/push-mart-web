@@ -15,6 +15,7 @@ function ProductList({
   return (
     <div>
       <div className="text-center websdk-facebook" />
+      <div id="pw-cart-slot" className="pw-placement-slot" />
       {
                 !isSubscribed
                 && (

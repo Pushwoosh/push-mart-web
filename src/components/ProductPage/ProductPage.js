@@ -33,6 +33,7 @@ function ProductPage({
         ) : (
           <Link className="btn btn-primary" to="/appcode">Enter Application Code to shop</Link>
         )}
+        <div id="pw-cart-slot" className="pw-placement-slot" />
       </div>
     </div>
   );
